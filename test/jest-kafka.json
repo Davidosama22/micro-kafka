@@ -1,0 +1,16 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": "test/kafka/.*\\.int-spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "setupFiles": ["reflect-metadata"],
+  "moduleNameMapper": {
+    "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
+  },
+  "globalSetup": "<rootDir>/test/kafka/global-setup.ts",
+  "globalTeardown": "<rootDir>/test/kafka/global-teardown.ts",
+  "testTimeout": 120000
+}

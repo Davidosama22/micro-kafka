@@ -1,0 +1,82 @@
+Producer
+
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientKafka } from '@nestjs/microservices';
+
+@Injectable()
+export class OrdersService {
+  constructor(
+    @Inject('KAFKA_SERVICE')
+    private readonly kafkaClient: ClientKafka,
+  ) {}
+
+  createOrder() {
+    const order = {
+      orderId: 123,
+      userId: 50,
+      total: 1000,
+    };
+
+    // Send Event to Kafka
+    this.kafkaClient.emit('order.created', order);
+
+    return order;
+  }
+}
+
+
+import { Module } from '@nestjs/common';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { OrdersService } from './orders.service';
+
+@Module({
+  imports: [
+    ClientsModule.register([
+      {
+        name: 'KAFKA_SERVICE',
+
+        transport: Transport.KAFKA,
+
+        options: {
+          client: {
+            clientId: 'order-service',
+            brokers: ['localhost:9092'],
+          },
+
+          consumer: {
+            groupId: 'order-group',
+          },
+        },
+      },
+    ]),
+  ],
+
+  providers: [OrdersService],
+})
+export class OrdersModule {}
+
+
+
+Consumer
+
+
+
+import {
+  Controller,
+} from '@nestjs/common';
+
+import {
+  EventPattern,
+  Payload,
+} from '@nestjs/microservices';
+
+@Controller()
+export class NotificationsController {
+
+  @EventPattern('order.created')
+  handleOrderCreated(
+    @Payload() data: any,
+  ) {
+    console.log('New Order:', data);
+  }
+}

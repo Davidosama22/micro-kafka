@@ -1,0 +1,26 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import * as Joi from 'joi';
+import { LoggerModule } from '@app/common/logger/logger.module';
+import { NotificationsController } from './notifications.controller';
+import { NotificationsService } from './notifications.service';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: './apps/notifications/.env',
+      validationSchema: Joi.object({
+        GOOGLE_OAUTH_CLIENT_ID: Joi.string().required(),
+        GOOGLE_OAUTH_CLIENT_SECRET: Joi.string().required(),
+        GOOGLE_OAUTH_REFRESH_TOKEN: Joi.string().required(),
+        SMTP_USER: Joi.string().email().required(),
+        KAFKA_BROKERS: Joi.string().required(),
+      }),
+    }),
+    LoggerModule,
+  ],
+  controllers: [NotificationsController],
+  providers: [NotificationsService],
+})
+export class NotificationsModule {}
